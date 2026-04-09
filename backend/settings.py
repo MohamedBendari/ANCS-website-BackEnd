@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'contact',
     'rest_framework',
     'corsheaders',
+    'accounts',
     
 ]
 
@@ -82,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ancs_db',
         'USER': 'postgres',
-        'PASSWORD': '123456',
+        'PASSWORD': '123123',
         'HOST': 'localhost',
         'PORT': '5432',
     }

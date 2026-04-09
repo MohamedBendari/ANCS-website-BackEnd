@@ -1,24 +1,20 @@
-from rest_framework import generics, filters
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import ContactMessage
 from .serializers import ContactMessageSerializer
+from rest_framework import generics, filters
 
-from rest_framework.permissions import AllowAny
 
+# عرض وإضافة الرسائل
 class ContactMessageListView(generics.ListCreateAPIView):
-    queryset = ContactMessage.objects.all()
+    queryset = ContactMessage.objects.all().order_by('-created_at')
     serializer_class = ContactMessageSerializer
-    permission_classes = [AllowAny]  # 👈 الحل هنا
-# class ContactMessageListView(generics.ListAPIView):
-#     queryset = ContactMessage.objects.all().order_by('-created_at')
-#     serializer_class = ContactMessageSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'email', 'purpose', 'message']
 
-    # 🔐 حماية الـ API
-    # permission_classes = [IsAuthenticated]
-
-    # 🔍 Search + ترتيب
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-
-    search_fields = ['name', 'email', 'message']
-    ordering_fields = ['created_at', 'name']
-    ordering = ['-created_at']
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return []  # أي حد يقدر يبعت رسالة
+        return [IsAuthenticated()]  # القراءة للـ admin بس
