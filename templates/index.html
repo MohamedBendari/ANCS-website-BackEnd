@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ANCS Backend</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body{
+
+            background:#0f172a;
+
+            color:white;
+
+            min-height:100vh;
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            padding:40px;
+        }
+
+        .container{
+
+            width:100%;
+            max-width:1100px;
+        }
+
+        .title{
+
+            text-align:center;
+
+            margin-bottom:50px;
+        }
+
+        .title h1{
+
+            font-size:60px;
+
+            margin-bottom:10px;
+
+            color:#38bdf8;
+        }
+
+        .title p{
+
+            color:#94a3b8;
+
+            font-size:18px;
+        }
+
+        .cards{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+            gap:25px;
+        }
+
+        .card{
+
+            background:#1e293b;
+
+            padding:30px;
+
+            border-radius:20px;
+
+            transition:0.3s;
+
+            border:1px solid #334155;
+        }
+
+        .card:hover{
+
+            transform:translateY(-8px);
+
+            border-color:#38bdf8;
+        }
+
+        .card h2{
+
+            margin-bottom:15px;
+
+            color:#38bdf8;
+        }
+
+        .status{
+
+            color:#4ade80;
+
+            font-weight:bold;
+        }
+
+        .btns{
+
+            margin-top:50px;
+
+            display:flex;
+
+            justify-content:center;
+
+            gap:20px;
+
+            flex-wrap:wrap;
+        }
+
+        .btn{
+
+            text-decoration:none;
+
+            background:#38bdf8;
+
+            color:black;
+
+            padding:15px 30px;
+
+            border-radius:12px;
+
+            font-weight:bold;
+
+            transition:0.3s;
+        }
+
+        .btn:hover{
+
+            background:white;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="title">
+
+            <h1>ANCS Backend</h1>
+
+            <p>Automated Network Configuration System API</p>
+
+        </div>
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h2>Server Status</h2>
+
+                <p class="status">Online 🚀</p>
+
+            </div>
+
+            <div class="card">
+
+                <h2>Authentication</h2>
+
+                <p>JWT Enabled 🔐</p>
+
+            </div>
+
+            <div class="card">
+
+                <h2>Database</h2>
+
+                <p>PostgreSQL Connected 🟢</p>
+
+            </div>
+
+            <div class="card">
+
+                <h2>API Documentation</h2>
+
+                <p>Swagger Active 📘</p>
+
+            </div>
+
+        </div>
+
+        <div class="btns">
+
+            <a href="/api/docs/" class="btn">
+                Swagger Docs
+            </a>
+
+            <a href="/admin/" class="btn">
+                Admin Panel
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

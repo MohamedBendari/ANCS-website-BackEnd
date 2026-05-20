@@ -15,6 +15,9 @@ from .models import Profile
 from .serializers import RegisterSerializer,UserManagementSerializer
 from django.conf import settings
 
+from rest_framework.permissions import IsAdminUser
+
+from rest_framework.permissions import IsAuthenticated
 
 # 🔥 حط هنا الـ Client ID بتاع Google
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID 
@@ -282,8 +285,10 @@ def google_login(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-# ✅ Get All Users
+# ✅ Get All Users (For Admin)   لأدمن فقط هو اللي يقدر يدخل عليهم.
 class UsersListView(APIView):
+
+    permission_classes = [IsAdminUser]
 
     def get(self, request):
 
@@ -296,9 +301,10 @@ class UsersListView(APIView):
 
         return Response(serializer.data)
 
-
 # ✅ Delete User
 class DeleteUserView(APIView):
+
+    permission_classes = [IsAdminUser]
 
     def delete(self, request, user_id):
 
@@ -319,9 +325,10 @@ class DeleteUserView(APIView):
                 status=404
             )
 
-
 # ✅ Update User
 class UpdateUserView(APIView):
+
+    permission_classes = [IsAdminUser]
 
     def put(self, request, user_id):
 
@@ -370,3 +377,45 @@ class UpdateUserView(APIView):
         serializer = UserManagementSerializer(user)
 
         return Response(serializer.data)
+
+
+# ✅ Change Password
+class ChangePasswordView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        user = request.user
+
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+
+        # check current password
+        if not user.check_password(old_password):
+
+            return Response(
+                {
+                    "error": "Current password is incorrect"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # validate password
+        if len(new_password) < 6:
+
+            return Response(
+                {
+                    "error": "Password must be at least 6 characters"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # save new password
+        user.set_password(new_password)
+
+        user.save()
+
+        return Response({
+            "message": "Password changed successfully"
+        })

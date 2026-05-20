@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import ChangePasswordView
 from .views import RegisterView, LoginView, AdminLoginView, google_login, UsersListView, DeleteUserView, UpdateUserView
 urlpatterns = [
     path('register/', RegisterView.as_view()),  # POST /api/register/
@@ -13,4 +14,6 @@ urlpatterns = [
     path('users/<int:user_id>/delete/', DeleteUserView.as_view()),
 
      path('users/<int:user_id>/update/', UpdateUserView.as_view()),
+    # Change Password
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
 ]

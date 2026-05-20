@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'accounts',
+    'drf_spectacular',
     
 ]
 
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -144,11 +145,15 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 from datetime import timedelta
 
 REST_FRAMEWORK = {
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+
     'PAGE_SIZE': 5
 }
 
@@ -160,3 +165,34 @@ SIMPLE_JWT = {
 
 # Google OAuth
 GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ANCS API',
+    'DESCRIPTION': 'ANCS Backend API Documentation',
+    'VERSION': '1.0.0',
+
+    'SERVE_INCLUDE_SCHEMA': False,
+
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+
+    'COMPONENT_SPLIT_REQUEST': True,
+
+    'SECURITY': [
+        {
+            'BearerAuth': []
+        }
+    ],
+
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    }
+}
