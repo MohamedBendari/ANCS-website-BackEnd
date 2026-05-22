@@ -47,9 +47,11 @@ INSTALLED_APPS = [
     'accounts',
     'drf_spectacular',
     
+    
 ]
 
 MIDDLEWARE = [
+    
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -130,7 +132,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 
 
@@ -201,3 +203,12 @@ SPECTACULAR_SETTINGS = {
         }
     }
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "https://ancs-website-frontend-jp3a.vercel.app",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://ancs-website-frontend-jp3a.vercel.app",
+    "https://ancs-website-backend-production.up.railway.app",
+]
