@@ -6,14 +6,14 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view
-
+from rest_framework.decorators import api_view, permission_classes
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
 from .models import Profile
 from .serializers import RegisterSerializer,UserManagementSerializer
 from django.conf import settings
+from openai import OpenAI
 
 from rest_framework.permissions import IsAdminUser
 
@@ -419,3 +419,57 @@ class ChangePasswordView(APIView):
         return Response({
             "message": "Password changed successfully"
         })
+
+# ✅ AI Chat
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ai_chat(request):
+
+    try:
+
+        message = request.data.get("message")
+
+        if not message:
+
+            return Response(
+                {"error": "Message is required"},
+                status=400
+            )
+
+        client = OpenAI(
+            api_key=settings.OPENAI_API_KEY
+        )
+
+        response = client.chat.completions.create(
+
+            model="gpt-3.5-turbo",
+
+            messages=[
+
+                {
+                    "role": "system",
+                    "content": (
+                        "You are ANCS AI assistant. "
+                        "Help users solve networking and system problems professionally."
+                    )
+                },
+
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ]
+        )
+
+        reply = response.choices[0].message.content
+
+        return Response({
+            "reply": reply
+        })
+
+    except Exception as e:
+
+        return Response(
+            {"error": str(e)},
+            status=500
+        )

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import ChangePasswordView
-from .views import RegisterView, LoginView, AdminLoginView, google_login, UsersListView, DeleteUserView, UpdateUserView
+from .views import RegisterView, LoginView, AdminLoginView, google_login, UsersListView, DeleteUserView, UpdateUserView, ai_chat
 urlpatterns = [
     path('register/', RegisterView.as_view()),  # POST /api/register/
     path('login/',    LoginView.as_view()),      # POST /api/login/
@@ -16,4 +16,5 @@ urlpatterns = [
      path('users/<int:user_id>/update/', UpdateUserView.as_view()),
     # Change Password
     path('change-password/', ChangePasswordView.as_view(), name='change_password'),
+    path('ai/chat/', ai_chat),
 ]
