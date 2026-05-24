@@ -20,8 +20,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import IsAuthenticated
 
 # 🔥 حط هنا الـ Client ID بتاع Google
-GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID 
-
+GOOGLE_CLIENT_ID = getattr(settings, "GOOGLE_CLIENT_ID", "")
 
 def authenticate_user(identifier, password):
 
