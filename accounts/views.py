@@ -129,33 +129,40 @@ class AdminLoginView(APIView):
 # ✅ Google Login
 @api_view(['POST'])
 def google_login(request):
-    token = request.data.get("token")
+    import urllib.request
+    import json as json_lib
 
-    if not token:
-        return Response({"error": "Google token is required"}, status=400)
+    access_token = request.data.get("access_token")
+    id_token_str = request.data.get("token")
 
     try:
-        # ✅ verify token
-        idinfo = id_token.verify_oauth2_token(
-            token,
-            google_requests.Request(),
-            GOOGLE_CLIENT_ID,
-            clock_skew_in_seconds=10  # يتحمل فرق توقيت بسيط
-        )
+        if access_token:
+            req = urllib.request.Request(
+                'https://www.googleapis.com/oauth2/v3/userinfo',
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            with urllib.request.urlopen(req, timeout=10) as response:
+                userinfo = json_lib.loads(response.read().decode())
+            email = userinfo.get('email')
+            name  = userinfo.get('name', '')
 
-        email = idinfo.get('email')
-        name  = idinfo.get('name', '')
+        elif id_token_str:
+            idinfo = id_token.verify_oauth2_token(
+                id_token_str, google_requests.Request(),
+                GOOGLE_CLIENT_ID, clock_skew_in_seconds=10
+            )
+            email = idinfo.get('email')
+            name  = idinfo.get('name', '')
+
+        else:
+            return Response({"error": "Token is required"}, status=400)
 
         if not email:
-            return Response({"error": "Email not found in token"}, status=400)
+            return Response({"error": "Email not found"}, status=400)
 
-        # ✅ create or get user
         user, created = User.objects.get_or_create(
-            username=email,
-            defaults={"email": email, "first_name": name}
+            username=email, defaults={"email": email, "first_name": name}
         )
-
-        # ✅ create profile if not exists
         Profile.objects.get_or_create(user=user, defaults={"role": "user"})
 
         try:
@@ -164,33 +171,24 @@ def google_login(request):
             role = 'user'
 
         refresh = RefreshToken.for_user(user)
-
         return Response({
             "message": "Google login successful",
-            "access":    str(refresh.access_token),
-            "refresh":   str(refresh),
-            "role":      role,
-            "username":  user.username,
-            "email":     user.email,
-            "name":      user.first_name,
-            "new_user":  created
+            "access":   str(refresh.access_token),
+            "refresh":  str(refresh),
+            "role":     role,
+            "username": user.username,
+            "email":    user.email,
+            "name":     user.first_name,
+            "new_user": created
         })
 
     except ValueError as e:
-        # ✅ token invalid or expired
         print("GOOGLE TOKEN ERROR:", str(e))
-        return Response(
-            {"error": f"Invalid Google token: {str(e)}"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": f"Invalid token: {str(e)}"}, status=400)
 
     except Exception as e:
-        # ✅ any other error
-        print("GOOGLE UNEXPECTED ERROR:", str(e))
-        return Response(
-            {"error": f"Server error: {str(e)}"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        print("GOOGLE ERROR:", str(e))
+        return Response({"error": f"Server error: {str(e)}"}, status=500)
 
 
 # ✅ Get All Users
