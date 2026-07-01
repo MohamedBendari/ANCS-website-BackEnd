@@ -215,6 +215,7 @@ class DeleteUserView(APIView):
 
 
 # ✅ Update User
+# ✅ Update User
 class UpdateUserView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -224,19 +225,30 @@ class UpdateUserView(APIView):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
 
-        user.username  = request.data.get('username',  user.username)
-        user.email     = request.data.get('email',     user.email)
-        user.is_active = request.data.get('is_active', user.is_active)
-        user.save()
+        user.username = request.data.get("username", user.username)
+        user.email = request.data.get("email", user.email)
+        user.is_active = request.data.get("is_active", user.is_active)
 
-        role = request.data.get('role')
+        role = request.data.get("role")
+
         if role:
             profile, _ = Profile.objects.get_or_create(user=user)
             profile.role = role
             profile.save()
 
+            if role == "admin":
+                user.is_staff = True
+                user.is_superuser = True
+            else:
+                user.is_staff = False
+                user.is_superuser = False
+
+        user.save()
+
         serializer = UserManagementSerializer(user)
         return Response(serializer.data)
+            
+        
 
 
 # ✅ Change Password
