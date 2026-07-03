@@ -80,10 +80,7 @@ class LoginView(APIView):
                 {"error": "Invalid credentials"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        try:
-            role = user.profile.role
-        except Profile.DoesNotExist:
-            role = 'admin' if user.is_superuser else 'user'
+        role = "admin" if user.is_staff else "user"
         refresh = RefreshToken.for_user(user)
         return Response({
             "access": str(refresh.access_token),
@@ -108,20 +105,17 @@ class AdminLoginView(APIView):
                 {"error": "Invalid credentials"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        try:
-            role = user.profile.role
-        except Profile.DoesNotExist:
-            role = 'admin' if user.is_superuser else 'user'
-        if role != 'admin':
+        
+        if not user.is_staff:
             return Response(
-                {"error": "Access denied. Admin only."},
+                {"error": "Access denied. Admin only"},
                 status=status.HTTP_403_FORBIDDEN
             )
         refresh = RefreshToken.for_user(user)
         return Response({
             "access": str(refresh.access_token),
             "refresh": str(refresh),
-            "role": role,
+            "role": "admin",
             "username": user.username,
         })
 
@@ -165,10 +159,7 @@ def google_login(request):
         )
         Profile.objects.get_or_create(user=user, defaults={"role": "user"})
 
-        try:
-            role = user.profile.role
-        except Profile.DoesNotExist:
-            role = 'user'
+        role = "admin" if user.is_staff else "user"
 
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -215,7 +206,6 @@ class DeleteUserView(APIView):
 
 
 # ✅ Update User
-# ✅ Update User
 class UpdateUserView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -231,17 +221,13 @@ class UpdateUserView(APIView):
 
         role = request.data.get("role")
 
-        if role:
-            profile, _ = Profile.objects.get_or_create(user=user)
-            profile.role = role
-            profile.save()
+        if role == "admin":
+            user.is_staff = True
+            user.is_superuser = True
 
-            if role == "admin":
-                user.is_staff = True
-                user.is_superuser = True
-            else:
-                user.is_staff = False
-                user.is_superuser = False
+        elif role == "user":
+            user.is_staff = False
+            user.is_superuser = False
 
         user.save()
 

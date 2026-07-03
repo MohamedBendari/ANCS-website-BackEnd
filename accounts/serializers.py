@@ -57,18 +57,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data.get('email', ''),
-            password=validated_data['password']
+        username = validated_data.get('username'),
+        email = validated_data.get('email', ''),
+        password = validated_data.get('password'),
         )
+        user.is_staff = False
+        user.is_superuser = False
+        user.save()
         return user
 
 class UserManagementSerializer(serializers.ModelSerializer):
 
-    role = serializers.CharField(source='profile.role')
+    role = serializers.SerializerMethodField()
+
+    def get_role(self, obj):
+        return "admin" if obj.is_staff else "user"
 
     class Meta:
-
         model = User
 
         fields = [
